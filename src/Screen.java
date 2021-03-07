@@ -2,6 +2,10 @@ import javax.swing.*;
 
 public class Screen extends JFrame {
 
+    /**
+     * Creates the workframe of the program
+     * and its basic elements
+     */
     public Screen(){
 
         this.add(new GamePanel());
