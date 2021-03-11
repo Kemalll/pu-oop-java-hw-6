@@ -9,21 +9,21 @@ import java.util.Random;
 
 public class GamePanel extends JPanel implements ActionListener {
 
-    static final int SCREEN_WIDTH = 1300;
-    static final int SCREEN_HEIGHT = 750;
-    static final int UNIT_SIZE = 30;
-    static final int GAME_UNITS = (SCREEN_WIDTH * SCREEN_HEIGHT) / (UNIT_SIZE * UNIT_SIZE);
-    static final int DELAY = 87;
-    final int[] x = new int[GAME_UNITS];
-    final int[] y = new int[GAME_UNITS];
-    int fed = 5;
-    int bodyParts = 1;
-    int applesEaten;
-    int appleX;
-    int appleY;
-    int wallSize = 10;
-    int wallX;
-    int wallY;
+    public static final int SCREEN_WIDTH = 1300;
+    public static final int SCREEN_HEIGHT = 750;
+    public static final int UNIT_SIZE = 30;
+    public static final int GAME_UNITS = (SCREEN_WIDTH * SCREEN_HEIGHT) / (UNIT_SIZE * UNIT_SIZE);
+    public static final int DELAY = 87;
+    public final int[] x = new int[GAME_UNITS];
+    public final int[] y = new int[GAME_UNITS];
+    public int fed = 5;
+    public int bodyParts = 1;
+    public int applesEaten;
+    public int appleX;
+    public int appleY;
+    public int wallsize = 4;
+    public int wallX;
+    public int wallY;
     char direction = 'R';
     boolean isWin;
     boolean running = false;
@@ -36,7 +36,7 @@ public class GamePanel extends JPanel implements ActionListener {
     public GamePanel() {
         random = new Random();
         this.setPreferredSize(new Dimension(SCREEN_WIDTH, SCREEN_HEIGHT));
-        this.setBackground(new Color(2, 13, 50));
+        this.setBackground(new Color(4, 10, 66, 252));
         this.setFocusable(true);
         this.addKeyListener(new MyKeyAdapter());
         startGame();
@@ -47,8 +47,9 @@ public class GamePanel extends JPanel implements ActionListener {
         running = true;
         timer = new Timer(DELAY, this);
         timer.start();
-        Walls();
+        getWalls();
         newApple();
+//        movingApple();
     }
 
     public void paint(Graphics g) {
@@ -62,29 +63,36 @@ public class GamePanel extends JPanel implements ActionListener {
     public void draw(Graphics g) {
 
         if (running) {
-            g.setColor(Color.RED);//Food colors
+            g.setColor(new Color(101, 15, 7));//Food colors
             g.fillOval(appleX, appleY, UNIT_SIZE, UNIT_SIZE);
 
-            g.setColor(Color.MAGENTA);
-            g.fillRect(wallX, wallY, UNIT_SIZE, UNIT_SIZE);
-
+            for(int i = 0; i< wallsize; i++) {
+                g.setColor(new Color(132, 74, 153));
+                g.fill3DRect(wallX, wallY, UNIT_SIZE, UNIT_SIZE,true);
+            }
             for (int i = 0; i < bodyParts; i++) {
                 if (i == 0) {
-                    g.setColor(Color.RED);
+                    g.setColor(new Color(0, 42, 70));    //Head Color
                     g.fillRect(x[i], y[i], UNIT_SIZE, UNIT_SIZE);
                 } else {
-                    g.setColor(new Color(165, 35, 35));
+                    g.setColor(new Color(0, 45, 65));  //Body Color
                     g.fillRect(x[i], y[i], UNIT_SIZE, UNIT_SIZE);
-
                 }
             }
+
             g.setColor(Color.RED);
             g.setFont(new Font("Text", Font.PLAIN, 100));
             FontMetrics metrics = getFontMetrics(g.getFont());
+
             g.drawString("Score:" + applesEaten, (SCREEN_WIDTH - metrics.stringWidth("Score:" + applesEaten)) / 2, g.getFont().getSize() / 2);
-        }
-        else if(isWin){win(g);}
-        else gameOver(g);
+            g.setFont(new Font("Helper", Font.ROMAN_BASELINE, 100));
+            g.drawString(">>", SCREEN_WIDTH - 200, g.getFont().getSize() / 2);
+            g.setFont(new Font("Helper", Font.ROMAN_BASELINE, 100));
+            g.drawString("|/", SCREEN_WIDTH / 2, g.getFont().getSize() + 650);
+
+        } else if (isWin) {
+            win(g);
+        } else gameOver(g);
     }
 
     /**
@@ -94,6 +102,11 @@ public class GamePanel extends JPanel implements ActionListener {
         appleX = random.nextInt((SCREEN_WIDTH / UNIT_SIZE)) * UNIT_SIZE;
         appleY = random.nextInt((SCREEN_HEIGHT / UNIT_SIZE)) * UNIT_SIZE;
     }
+
+    public void movingApple() {
+//        for ()
+    }
+
     public void move() {
         for (int i = bodyParts; i > 0; i--) {   //Shifts the body of the snake
             x[i] = x[i - 1];
@@ -124,6 +137,7 @@ public class GamePanel extends JPanel implements ActionListener {
             bodyParts++;
             applesEaten++;
             newApple();
+//            movingApple();
         }
     }
 
@@ -136,32 +150,45 @@ public class GamePanel extends JPanel implements ActionListener {
             if ((x[0] == x[i]) && (y[0] == y[i])) {
                 running = false;
             }
-            if ((x[0] == wallX) && (y[0] == wallY)){
-                running=false;
-            }
+        }
+        if ((x[0] == wallX) && (y[0] == wallY)) {
+            running = false;
         }
         if (x[0] < 0) {
+            x[0] = SCREEN_WIDTH;
             running = false;
         }
         if (x[0] > SCREEN_WIDTH) {
-            running = false;
+            x[0] = 0;
+//            running = false;
         }
         if (y[0] < 0) {
+            y[0] = SCREEN_HEIGHT;
             running = false;
         }
         if (y[0] > SCREEN_HEIGHT) {
-            running = false;
+            y[0] = 0;
         }
         if (!running) {
             timer.stop();
         }
     }
-    
-    public void Walls(){
-        wallX=random.nextInt((SCREEN_WIDTH / UNIT_SIZE)) * UNIT_SIZE;
-        wallY=random.nextInt((SCREEN_WIDTH / UNIT_SIZE)) * UNIT_SIZE;
 
+    public int[] Walls() {                             //Creates the walls
+        random=new Random();
+        int[]coordinates=new int[2];
+        wallX  = random.nextInt((SCREEN_WIDTH / UNIT_SIZE)) * UNIT_SIZE;
+        wallY  = random.nextInt((SCREEN_HEIGHT / UNIT_SIZE)) * UNIT_SIZE;
+        coordinates[0]=wallX;
+        coordinates[1]=wallY;
+        return coordinates;
     }
+    public void getWalls() {                 
+       for (int i =0;i< wallsize;i++){
+         Walls();
+       }
+    }
+
     public void winCondition(){       // Checks if you won the game
         if(applesEaten==fed){
             isWin=true;
@@ -233,7 +260,6 @@ public class GamePanel extends JPanel implements ActionListener {
                     if (direction != 'U') {
                         direction = 'D';
                         break;
-
                     }
             }
         }
